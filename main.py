@@ -23,7 +23,7 @@ def get_products(product_price: float, product_type: Union[str, None] = None, pr
     return results
 
 @app.get("/product/price")
-def get_all_products(min_price: float, max_price: float):
+def get_all_products_price_range(min_price: float, max_price: float):
     results = [p for p in Products if min_price < p['Price'] < max_price]
     return results
 
