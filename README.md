@@ -13,12 +13,14 @@ This project is a high-performance Inventory API built with **FastAPI**. It allo
 * **Framework:** FastAPI / Uvicorn
 * **Environment:** Linux (PyCharm)
 
+  
 ```bash
 # How to run locally
 pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
+  
 🧪 Testing the API
 Once the server is running, visit the interactive docs at:
 http://127.0.0.1:8000/docs
