@@ -13,10 +13,13 @@ app = FastAPI(title='Module 6 API',
 async def get_products():
     return await game_service.get_all_games()
 
-@app.get("/product/{product_id}", response_model=Products)
+@app.get("/product/{product_id}", response_model=Products, responses={400: {"model": StatusMessage}})
 async def get_product(product_id: int):
     game = await game_service.get_game_by_id(product_id)
+    if not game:
+        raise HTTPException(status_code=400, detail="Game not found")
     return game
+
 
 ## Search Endpoints ##
 @app.get("/products/price", response_model=List[Products])
