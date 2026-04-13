@@ -9,15 +9,18 @@ app = FastAPI(title='Module 6 API',
               contact={"name": 'Nicole Duhan', "email": 'nduhan@mail.mccneb.edu'},
               description ='Assignment 6')
 
-@app.get("/products", response_model=List[Products])
+@app.get("/products", response_model=List[Products], responses={400: {"model": StatusMessage}})
 async def get_products():
-    return await game_service.get_all_games()
+    games = await game_service.get_all_games()
+    if not games:
+        raise HTTPException(status_code=400, detail="No entries exist!")
+    return games
 
 @app.get("/product/{product_id}", response_model=Products, responses={400: {"model": StatusMessage}})
 async def get_product(product_id: int):
     game = await game_service.get_game_by_id(product_id)
     if not game:
-        raise HTTPException(status_code=400, detail="Game not found")
+        raise HTTPException(status_code=400, detail="No entry was found matching your query.")
     return game
 
 
