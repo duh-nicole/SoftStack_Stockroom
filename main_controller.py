@@ -1,12 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, status
 from typing import List, Optional
 from modules.product_models import Products, ProductsRequest
+from modules.status_response import StatusMessage
 from services import game_service
 
-app = FastAPI(title='Module 5 API',
+app = FastAPI(title='Module 6 API',
               version='0.0.3',
               contact={"name": 'Nicole Duhan', "email": 'nduhan@mail.mccneb.edu'},
-              description ='Assignment 5')
+              description ='Assignment 6')
 
 @app.get("/products", response_model=List[Products])
 async def get_products():
