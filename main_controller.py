@@ -37,10 +37,12 @@ async def search_products(product_price: float, product_type: Optional[str] = No
         raise HTTPException(status_code=400, detail="No products were found from the price or type given!")
     return results
 
-@app.post("/products/mod")
+@app.post("/products/mod", responses={400: {"model": StatusMessage}})
 async def update_products(products: ProductsRequest):
+    ## Checking if required strings are empty
+    if products.Name == "" or products.Type == "":
+        raise HTTPException(status_code=400, detail="The Request Object was not sent properly!")
     existing_game = await game_service.get_game_by_id(products.ID)
-
     if existing_game:
         await game_service.update_existing_game(products)
         return "Modified Product!"
