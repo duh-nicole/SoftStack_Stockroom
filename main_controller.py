@@ -23,15 +23,19 @@ async def get_product(product_id: int):
         raise HTTPException(status_code=400, detail="No entry was found matching your query.")
     return game
 
-
-## Search Endpoints ##
-@app.get("/products/price", response_model=List[Products])
+@app.get("/products/price", response_model=List[Products], responses={400: {"model": StatusMessage}})
 async def get_all_products_price_range(min_price: float, max_price: float):
-    return await game_service.get_games_by_price_range(min_price, max_price)
+    results = await game_service.get_games_by_price_range(min_price, max_price)
+    if not results:
+        raise HTTPException(status_code=400, detail="No products were found matching your criteria!")
+    return results
 
-@app.get("/products/search", response_model=List[Products])
+@app.get("/products/search", response_model=List[Products], responses={400: {"model": StatusMessage}})
 async def search_products(product_price: float, product_type: Optional[str] = None):
-    return await game_service.search_games(product_price, product_type)
+    results = await game_service.search_games(product_price, product_type)
+    if not results:
+        raise HTTPException(status_code=400, detail="No products were found from the price or type given!")
+    return results
 
 @app.post("/products/mod")
 async def update_products(products: ProductsRequest):
