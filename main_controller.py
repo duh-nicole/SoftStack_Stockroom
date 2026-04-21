@@ -4,10 +4,10 @@ from modules.product_models import Products, ProductsRequest
 from modules.status_response import StatusMessage
 from services import game_service
 
-app = FastAPI(title='Module 6 API',
+app = FastAPI(title='Module 7 API',
               version='0.0.3',
               contact={"name": 'Nicole Duhan', "email": 'nduhan@mail.mccneb.edu'},
-              description ='Assignment 6')
+              description ='Assignment 7')
 
 @app.get("/products", response_model=List[Products], responses={400: {"model": StatusMessage}})
 async def get_products():
