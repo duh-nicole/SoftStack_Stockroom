@@ -12,6 +12,17 @@ cursor.execute('''
     )
 ''')
 
+
+## Our new token table setup
+cursor.execute('DROP TABLE IF EXISTS Tokens')
+cursor.execute('''
+    CREATE TABLE Tokens (
+        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        token_value TEXT NOT NULL
+    )
+''')
+
+
 game_data = [
     (0, 'Elden Ring', 59.99, 'FromSoftware'),
     (1, 'Dark Souls', 39.99, 'FromSoftware'),
@@ -35,9 +46,21 @@ game_data = [
     (19, 'Lost Media Title', 0.00, 'Unknown')
 ]
 
-cursor.executemany('INSERT INTO Products VALUES (?,?,?,?)', game_data
-)
+
+## Seed token data
+# We need these strings in our HTML callers
+token_data = [
+    ('mcc-student-2026',),
+    ('softstack-admin-key',),
+    ('dev-test-token',)
+]
+
+cursor.executemany('INSERT INTO Products VALUES (?,?,?,?)', game_data)
+cursor.executemany('INSERT INTO Tokens (token_value) VALUES (?)', token_data)
+
+
 conn.commit()
 conn.close()
 
-print("Database created successfully! We did it!")
+
+print("Database created successfully! Products and Tokens are ready to roll! We did it!")
