@@ -57,3 +57,11 @@ async def search_games(price: float, g_type: str = None):
         async with db.execute(query, params) as cursor:
             rows = await cursor.fetchall()
             return [dict(row) for row in rows]
+
+# Assignment 8 - Token Verification
+async def verify_token(token_value: str):
+    async with aiosqlite.connect(DB_FILE) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute('SELECT * FROM Tokens WHERE token_value = ?', (token_value,)) as cursor:
+            row = await cursor.fetchone()
+            return row is not None
