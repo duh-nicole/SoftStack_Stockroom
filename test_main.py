@@ -2,21 +2,23 @@ from fastapi.testclient import TestClient
 from main_controller import app
 
 client = TestClient(app)
+valid_headers = {"authorization": "mcc-student-2026"}
+
 
 # Testing /products
 def test_get_products_success():
-    response = client.get("/products")
+    response = client.get("/products", headers=valid_headers)
     assert response.status_code == 200
 
 
 # Testing /product/{product_id} - Success
 def test_get_product_id_success():
-    response = client.get("/product/5")
+    response = client.get("/product/5", headers=valid_headers)
     assert response.status_code == 200
 
 # Testing /product/{product_id} - Fail
 def test_get_product_id_not_found():
-    response = client.get("/product/9999")
+    response = client.get("/product/9999", headers=valid_headers)
     assert response.status_code == 400
     actual_message = response.json()["detail"]["content"]
     assert actual_message == "Whoops! The product_id was not found."
@@ -24,13 +26,13 @@ def test_get_product_id_not_found():
 
 # Testing /product/price - Success
 def test_get_product_price_range_success():
-    response = client.get("/products/price?min_price=14.00&max_price=16.00")
+    response = client.get("/products/price?min_price=14.00&max_price=16.00", headers=valid_headers)
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
 # Testing /product/price - Fail
 def test_get_product_price_range_not_found():
-    response = client.get("/products/price?min_price=999.99&max_price=1000.00")
+    response = client.get("/products/price?min_price=999.99&max_price=1000.00", headers=valid_headers)
     assert response.status_code == 400
     actual_message = response.json()["detail"]["content"]
     assert actual_message == "Whoops! No products within the specified range."
@@ -38,13 +40,13 @@ def test_get_product_price_range_not_found():
 
 # Testing /products/search - Success
 def test_get_games_search_success():
-    response = client.get("/products/search?product_price=59.99")
+    response = client.get("/products/search?product_price=59.99", headers=valid_headers)
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
 # Testing /products/search - Fail
 def test_get_games_search_not_found():
-    response = client.get("/products/search?product_price=0.05")
+    response = client.get("/products/search?product_price=0.05", headers=valid_headers)
     assert response.status_code == 400
     actual_message = response.json()["detail"]["content"]
     assert actual_message == "Whoops! No games meet your type and price."
@@ -59,11 +61,11 @@ def test_update_product_invalid_data():
         "Price": 19.99,
         "Type": "RPG"
     }
-    response = client.post("/products/mod", json=payload)
+    response = client.post("/products/mod", json=payload, headers=valid_headers)
     assert response.status_code == 400
     assert response.json()["detail"]["content"] == "Product type or name cannot be left empty!"
 
-
+# Testing /products/mod
 # Test - Modification of Existing ID
 def test_update_products_modify_existing():
     payload = {
@@ -72,10 +74,9 @@ def test_update_products_modify_existing():
         "Price": 29.99,
         "Type": "Mojang"
     }
-    response = client.post("/products/mod", json=payload)
+    response = client.post("/products/mod", json=payload, headers=valid_headers)
     assert response.status_code == 200
     assert response.json() == "Product has been successfully modified!"
-
 
 
 # Test - Adding New Product (New ID)
@@ -86,6 +87,13 @@ def test_update_products_add_new():
         "Price": 29.99,
         "Type": "EA"
     }
-    response = client.post("/products/mod", json=payload)
+    response = client.post("/products/mod", json=payload, headers=valid_headers)
     assert response.status_code == 200
     assert response.json() == "Product has been successfully added!"
+
+
+def test_unauthorized_access():
+    response = client.get("/products", headers={"authorization": "invalid-token"})
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid or missing token!"
+
