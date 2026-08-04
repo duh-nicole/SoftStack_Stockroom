@@ -1,10 +1,13 @@
 from fastapi import FastAPI, HTTPException, status, Depends
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from typing import List, Optional
-
-from modules.product_models import Products, ProductsRequest
+from typing import List
+from modules.product_models import (
+	ProductResponse,
+	BulkDeleteRequest,
+	BulkUpdateRequest
+)
 from modules.status_response import StatusMessage
 from services import product_service
+
 
 app = FastAPI(
 		title = 'SoftStack Stockroom',
@@ -151,3 +154,28 @@ async def update_products(
 	else:
 		await product_service.add_new_product(product)
 		return StatusMessage(content = "Product has been successfully added!")
+
+
+@app.delete("/products/bulk-delete", response_model=StatusMessage, tags=["Bulk Operations"])
+async def bulk_delete_products(
+		payload: BulkDeleteRequest,
+		token: str = Depends(get_current_token)
+):
+	"""Delete multiple products by passing a list of IDs."""
+	deleted_count = await product_service.bulk_delete_products(payload.product_ids)
+	if deleted_count == 0:
+		raise HTTPException(
+			status_code=status.HTTP_404_NOT_FOUND,
+			detail="No products matched the provided IDs for deletion."
+		)
+	return StatusMessage(content=f"Successfully deleted {deleted_count} products.")
+
+
+@app.post("/products/bulk-save", response_model=StatusMessage, tags=["Bulk Operations"])
+async def bulk_save_products(
+		payload: BulkUpdateRequest,
+		token: str = Depends(get_current_token)
+):
+	"""Add or update multiple products in a single request."""
+	await product_service.bulk_save_products(payload.products)
+	return StatusMessage(content=f"Successfully processed {len(payload.products)} products.")

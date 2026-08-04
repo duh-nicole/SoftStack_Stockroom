@@ -84,6 +84,45 @@ async def update_existing_product(product: ProductsRequest):
 			)
 		await db.commit()
 
+def calculate_discount(price: float, discount_percent: float) -> float:
+    """Calculates final price based on discount percentage."""
+    if discount_percent <= 0:
+        return price
+    discount_amount = price * (discount_percent / 100.0)
+    return round(price - discount_amount, 2)
+
+async def format_product_data(row: dict) -> dict:
+    """Helper to attach FinalPrice calculation to database records."""
+    product = dict(row)
+    price = product.get("Price", 0.0)
+    discount = product.get("DiscountPercent", 0.0)
+    product["FinalPrice"] = calculate_discount(price, discount)
+    return product
+
+# Bulk Delete Logic
+async def bulk_delete_products(product_ids: List[int]) -> int:
+    async with aiosqlite.connect(DB_FILE) as db:
+        placeholders = ', '.join('?' * len(product_ids))
+        query = f"DELETE FROM Products WHERE ID IN ({placeholders})"
+        cursor = await db.execute(query, product_ids)
+        await db.commit()
+        return cursor.rowcount  # Returns total count of deleted records
+
+# Bulk Upsert (Save/Modify Multiple)
+async def bulk_save_products(products: List[ProductRequest]):
+    async with aiosqlite.connect(DB_FILE) as db:
+        for item in products:
+            if item.ID:
+                await db.execute(
+                    "UPDATE Products SET Name = ?, Price = ?, Type = ?, DiscountPercent = ? WHERE ID = ?",
+                    (item.Name, item.Price, item.Type, item.DiscountPercent, item.ID)
+                )
+            else:
+                await db.execute(
+                    "INSERT INTO Products (Name, Price, Type, DiscountPercent) VALUES (?, ?, ?, ?)",
+                    (item.Name, item.Price, item.Type, item.DiscountPercent)
+                )
+        await db.commit()
 
 # ==============================
 # AUTHENTICATION & TOKENS

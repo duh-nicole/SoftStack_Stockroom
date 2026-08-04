@@ -19,9 +19,10 @@ def init_db():
                        ID    INTEGER PRIMARY KEY,
                        Name  TEXT NOT NULL,
                        Price REAL NOT NULL,
-                       Type  TEXT NOT NULL
+                       Type  TEXT NOT NULL,
+                       DiscountPercent REAL DEFAULT 0.0
                    )
-	               """)
+	            """)
 
 	# Create Users Table
 	cursor.execute("""
