@@ -1,27 +1,30 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import List, Optional
 
 
-# Base class with shared fields
 class ProductBase(BaseModel):
-    Name: str = Field(...,
-                      example = "Cozy Cinnamon Latte")
-    Price: float = Field(...,
-                         gt = 0,
-                         example = 4.50)
-    Type: str = Field(...,
-                      example = "Beverage")
+    Name: str = Field(..., example="CodeLatte Mug")
+    Price: float = Field(..., gt=0, example=15.00)
+    Type: str = Field(..., example="Merch")
+    DiscountPercent: float = Field(0.0, ge=0.0, le=100.0, description="Discount percentage (0-100)")
 
 
-# Used when CREATING a new product (ID is optional or omitted if auto-incremented)
-class ProductCreate(ProductBase):
+class ProductRequest(ProductBase):
     ID: Optional[int] = None
 
 
-# Used when RETURNING a product from the DB (ID is guaranteed to exist)
 class ProductResponse(ProductBase):
     ID: int
+    FinalPrice: float  # Dynamically calculated price after discount
 
     class Config:
-        from_attributes = True  # Allows Pydantic to read ORM / row dicts easily
+        from_attributes = True
 
+
+# Models for Bulk Operations
+class BulkDeleteRequest(BaseModel):
+    product_ids: List[int] = Field(..., min_items=1, example=[1, 2, 3])
+
+
+class BulkUpdateRequest(BaseModel):
+    products: List[ProductRequest] = Field(..., min_items=1)
