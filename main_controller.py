@@ -18,7 +18,8 @@ app = FastAPI(
     version='0.0.3',
     contact={
         "name": 'Nicole Duhan',
-        "email": 'softstackstudios@gmail.com'},
+        "email": 'softstackstudios@gmail.com'
+    },
     description='A cozy inventory system, made with intention and clean code.'
 )
 
@@ -34,9 +35,9 @@ app.add_middleware(
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
-async def get_current_token(token: str = Depends(oauth2_scheme)) -> str:
+def get_current_token(token: str = Depends(oauth2_scheme)) -> str:
     """Dependency that extracts and verifies the bearer token."""
-    valid = await product_service.verify_token(token)
+    valid = product_service.verify_token(token)
     if not valid:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -50,11 +51,10 @@ async def get_current_token(token: str = Depends(oauth2_scheme)) -> str:
 # AUTHENTICATION PORTAL
 # ==============================
 
-
 @app.post("/auth/token", tags=["Authentication"])
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
     """Sign-in portal to acquire an authentication token."""
-    token = await product_service.authenticate_user(form_data.username, form_data.password)
+    token = product_service.authenticate_user(form_data.username, form_data.password)
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -64,25 +64,24 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": token, "token_type": "bearer"}
 
 
-
 # ==============================
 # PRODUCT MANAGEMENT ENDPOINTS
 # ==============================
 
 @app.get("/products", response_model=List[ProductResponse], tags=["Products"])
-async def get_products(
+def get_products(
         limit: int = 20,
         offset: int = 0,
         token: str = Depends(get_current_token)
 ):
     """Fetch paginated products."""
-    return await product_service.get_products_paginated(limit=limit, offset=offset)
+    return product_service.get_products_paginated(limit=limit, offset=offset)
 
 
 @app.get("/product/{product_id}", response_model=ProductResponse, tags=["Products"])
-async def get_product(product_id: int, token: str = Depends(get_current_token)):
+def get_product(product_id: int, token: str = Depends(get_current_token)):
     """Fetch a single product by ID."""
-    product = await product_service.get_product_by_id(product_id)
+    product = product_service.get_product_by_id(product_id)
     if not product:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -92,7 +91,7 @@ async def get_product(product_id: int, token: str = Depends(get_current_token)):
 
 
 @app.get("/products/price", response_model=List[ProductResponse], tags=["Products"])
-async def get_all_products_price_range(
+def get_all_products_price_range(
         min_price: float,
         max_price: float,
         token: str = Depends(get_current_token)
@@ -103,21 +102,21 @@ async def get_all_products_price_range(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="min_price cannot be greater than max_price."
         )
-    return await product_service.get_products_by_price_range(min_price, max_price)
+    return product_service.get_products_by_price_range(min_price, max_price)
 
 
 @app.get("/products/search", response_model=List[ProductResponse], tags=["Products"])
-async def search_products(
+def search_products(
         product_price: float,
         product_type: Optional[str] = None,
         token: str = Depends(get_current_token)
 ):
     """Search products by target price and optional category type."""
-    return await product_service.search_products(product_price, product_type)
+    return product_service.search_products(product_price, product_type)
 
 
 @app.post("/products/mod", response_model=StatusMessage, tags=["Products"])
-async def update_products(
+def update_products(
         product: ProductRequest,
         token: str = Depends(get_current_token)
 ):
@@ -129,12 +128,12 @@ async def update_products(
         )
 
     if product.ID:
-        existing_product = await product_service.get_product_by_id(product.ID)
+        existing_product = product_service.get_product_by_id(product.ID)
         if existing_product:
-            await product_service.update_existing_product(product)
+            product_service.update_existing_product(product)
             return StatusMessage(content="Product has been successfully modified!")
 
-    await product_service.add_new_product(product)
+    product_service.add_new_product(product)
     return StatusMessage(content="Product has been successfully added!")
 
 
@@ -143,21 +142,23 @@ async def update_products(
 # ==============================
 
 @app.delete("/products/bulk-delete", tags=["Bulk Operations"])
-async def delete_products(
-    payload: BulkDeleteRequest,
-    token: str = Depends(get_current_token)
+def delete_products(
+        payload: BulkDeleteRequest,
+        token: str = Depends(get_current_token)
 ):
     """Delete multiple products by passing a list of IDs."""
-    await product_service.bulk_delete_products(payload.product_ids)
+    product_service.bulk_delete_products(payload.product_ids)
     return StatusMessage(content=f"Successfully deleted {len(payload.product_ids)} items.")
 
 
 @app.post("/products/bulk-save", response_model=StatusMessage, tags=["Bulk Operations"])
-async def bulk_save_products(
+def bulk_save_products(
         payload: BulkUpdateRequest,
         token: str = Depends(get_current_token)
 ):
     """Add or update multiple products in a single request."""
-    await product_service.bulk_save_products(payload.products)
+    product_service.bulk_save_products(payload.products)
     return StatusMessage(content=f"Successfully processed {len(payload.products)} products.")
 
+
+""" Thanks for using SoftStack Studios! """

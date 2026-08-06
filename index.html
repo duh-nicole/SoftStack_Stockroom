@@ -279,28 +279,28 @@
     <main class="card">
         <div class="header-layout" style="margin-bottom: 1rem; gap: 0.5rem; flex-wrap: wrap;">
             <div style="display: flex; gap: 0.5rem; flex: 1; min-width: 280px;">
-                <input type="text" id="search-input" placeholder="Search by target price..." class="form-input"
+                <input type="text" id="search-input" placeholder="Search by item name or price..." class="form-input"
                        style="flex: 1;" onkeyup="handleSearch(event)">
-                <button class="btn-secondary" onclick="executeSearch()">🔍 Search</button>
+                <button class="btn-secondary" onclick="executeSearch()">Search</button>
             </div>
             <div style="display: flex; gap: 0.5rem;">
-                <button class="btn-primary" onclick="openProductModal()">➕ Add Product</button>
-                <button class="btn-secondary" onclick="resetSearch()">🔄 Refresh</button>
+                <button class="btn-primary" onclick="openProductModal()">Add Product</button>
+                <button class="btn-secondary" onclick="resetSearch()">Refresh</button>
             </div>
         </div>
 
         <div class="table-container">
             <table>
                 <thead>
-                    <tr>
-                        <th scope="col" class="id-col">ID</th>
-                        <th scope="col">Item Name</th>
-                        <th scope="col">Category</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Discount</th>
-                        <th scope="col">Final Price</th>
-                        <th scope="col" style="text-align: center;">Actions</th>
-                    </tr>
+                <tr>
+                    <th scope="col" class="id-col">ID</th>
+                    <th scope="col">Item Name</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Discount</th>
+                    <th scope="col">Final Price</th>
+                    <th scope="col" style="text-align: center;">Actions</th>
+                </tr>
                 </thead>
                 <tbody id="product-table-body" aria-live="polite">
                 </tbody>
@@ -330,12 +330,12 @@
         <form onsubmit="handleLogin(event)">
             <div style="margin-bottom: 1rem; text-align: left;">
                 <label for="username" style="display: block; font-weight: 600; margin-bottom: 0.3rem;">Username</label>
-                <input type="text" id="username" required placeholder="nicole" class="form-input">
+                <input type="text" id="username" required placeholder="nicole2468" class="form-input">
             </div>
 
             <div style="margin-bottom: 1.5rem; text-align: left;">
                 <label for="password" style="display: block; font-weight: 600; margin-bottom: 0.3rem;">Password</label>
-                <input type="password" id="password" required placeholder="••••••••" class="form-input">
+                <input type="password" id="password" required placeholder="notPassword" class="form-input">
             </div>
 
             <p id="login-error" style="color: #e77c7c; display: none; margin-bottom: 1rem; font-size: 0.9rem;"></p>
@@ -448,7 +448,7 @@
             });
 
             if (!response.ok) {
-                throw new Error('Incorrect username or password.');
+                throw new Error('Sorry. I failed to authenticate you.');
             }
 
             const data = await response.json();
@@ -499,7 +499,7 @@
                 throw new Error('Session expired. Please log in again.');
             }
 
-            if (!response.ok) throw new Error('Failed to load inventory.');
+            if (!response.ok) throw new Error('Sorry. I failed to load the inventory.');
 
             const products = await response.json();
 
@@ -551,15 +551,24 @@
             badge.textContent = item.Type;
             typeCell.appendChild(badge);
 
+
             // 4. Price Cell
             const priceCell = document.createElement('td');
-            if (item.DiscountPercent > 0) {
+
+            // Safely extract numeric discount value (e.g., "20%" or "20" -> 20)
+            const discountVal = typeof item.DiscountPercent === 'string'
+                ? parseFloat(item.DiscountPercent.replace('%', ''))
+                : parseFloat(item.DiscountPercent || 0);
+
+            const rawPrice = parseFloat(item.Price) || 0;
+
+            if (discountVal > 0) {
                 const origPrice = document.createElement('span');
                 origPrice.className = 'price-original';
-                origPrice.textContent = `$${item.Price.toFixed(2)}`;
+                origPrice.textContent = `$${rawPrice.toFixed(2)}`;
                 priceCell.appendChild(origPrice);
             } else {
-                priceCell.appendChild(document.createTextNode(`$${item.Price.toFixed(2)}`));
+                priceCell.appendChild(document.createTextNode(`$${rawPrice.toFixed(2)}`));
             }
 
             // 5. Discount Cell
@@ -572,7 +581,7 @@
             const finalPrice = item.FinalPrice || item.Price;
             finalPriceCell.textContent = `$${finalPrice.toFixed(2)}`;
 
-            // 7. Actions Cell (EDIT & DELETE BUTTONS) 🛠️
+            // 7. Actions Cell (EDIT & DELETE BUTTONS)
             const actionCell = document.createElement('td');
             actionCell.style.textAlign = 'center';
 
@@ -706,7 +715,7 @@
                 body: JSON.stringify({product_ids: [productId]})
             });
 
-            if (!response.ok) throw new Error('Failed to delete product.');
+            if (!response.ok) throw new Error('Sorry. I failed to delete the product.');
 
             loadProducts(); // Refresh list
 
@@ -738,16 +747,18 @@
 
         try {
             const response = await fetch(`${API_URL}/products/search?product_price=${priceVal}`, {
-                headers: {'Authorization': `Bearer ${token}`}
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
-            if (!response.ok) throw new Error('Search failed.');
+            if (!response.ok) throw new Error('Search request failed.');
 
-            const products = await response.json();
-            renderTableRows(products);
+            const results = await response.json();
+            renderTableRows(results);
 
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #e77c7c;">${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #e77c7c;">Error: ${err.message}</td></tr>`;
         }
     }
 
@@ -756,7 +767,6 @@
         currentOffset = 0;
         loadProducts();
     }
-
 </script>
 </body>
 </html>
