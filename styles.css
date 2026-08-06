@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Updated Color Palettes
+   ========================================================================== */
+
+/* DEFAULT: (Nordic Mist - Crisp Icy Blue Slate) */
+:root {
+    --bg-main: #e0e7e9; /* Cool icy mist */
+    --bg-card: #ffffff;
+    --text-main: #354649;
+    --text-muted: #6c7a89;
+    --accent: #a3c6c4; /* Soft teal/blue */
+    --accent-hover: #8bb3b1;
+    --border: #cad5d8;
+    --table-header-bg: #cfdadc;
+    --badge-bg: #e0e7e9;
+}
+
+/* LIGHT MODE 1: (Pastel Sunshine & Cafe - Warm Cream/Yellow Base) */
+[data-theme="light-cafe"] {
+    --bg-main: #fff8e7; /* Cozy warm cream/yellow base */
+    --bg-card: #ffffff;
+    --text-main: #4e3440; /* Deep espresso brown */
+    --text-muted: #725161;
+    --accent: #ffcbcb; /* Strawberry pink */
+    --accent-hover: #f1b5b5;
+    --border: #f3e2c8;
+    --table-header-bg: #bb7171; /* Berry header */
+    --table-header-text: #ffffff;
+    --badge-bg: #c1f6e7; /* Mint accent pill */
+}
+
+/* LIGHT MODE 2: (Sage & Lavender - Soft Green Base) */
+[data-theme="light-sage"] {
+    --bg-main: #dff0ea; /* True soft sage green base */
+    --bg-card: #ffffff;
+    --text-main: #4f3a65; /* Deep plum/lavender text */
+    --text-muted: #574f7d; /* Soft lavender secondary */
+    --accent: #95adbe; /* Slate blue accent */
+    --accent-hover: #7d97aa;
+    --border: #c8e0d8;
+    --table-header-bg: #574f7d; /* Deep muted purple header */
+    --table-header-text: #ffffff;
+    --badge-bg: #e2d9f3; /* Soft lavender pill */
+}
+
+/* DARK MODE: (Charcoal & Mustard) */
+[data-theme="dark"] {
+    --bg-main: #263238;
+    --bg-card: #37474f;
+    --text-main: #eceff1;
+    --text-muted: #90a4ae;
+    --accent: #f7b633; /* High-contrast mustard yellow */
+    --accent-hover: #dba024;
+    --border: #455a64;
+    --table-header-bg: #607d8b;
+    --table-header-text: #ffffff;
+    --badge-bg: #455a64;
+}
