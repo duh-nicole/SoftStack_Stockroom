@@ -1,8 +1,15 @@
 import pytest
 from fastapi.testclient import TestClient
 from main_controller import app
+from init_db import reset_database
 
 client = TestClient(app)
+
+
+@pytest.fixture(scope="function", autouse=True)
+def setup_test_environment():
+    """Runs once before all tests to reset and seed inventory.sqlite."""
+    reset_database()
 
 
 @pytest.fixture
@@ -214,3 +221,6 @@ def test_bulk_delete_no_matches(auth_headers):
         headers=auth_headers
     )
     assert response.status_code == 200
+
+
+""" Thanks for using SoftStack Studios! """
