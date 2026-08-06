@@ -3,7 +3,8 @@
 A lightweight, full-stack inventory management system built with a **FastAPI** backend, **SQLite** database, and an
 interactive **Vanilla JavaScript** frontend featuring custom theme switching and secure JWT authentication.
 
-![SoftStack Stockroom Dashboard](./Stockroom_Product_List.png)
+![SoftStack Stockroom Sign In](./Stockroom_LogIn.png)
+![SoftStack Stockroom Dashboard](./StockroomDashboard.png)
 
 ---
 
