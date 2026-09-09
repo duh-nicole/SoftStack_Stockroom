@@ -1,0 +1,22 @@
+{
+  "builds": [
+    {
+      "src": "main_controller.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(auth|products|product)(.*)",
+      "dest": "main_controller.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
